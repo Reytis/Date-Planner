@@ -7,15 +7,7 @@ export const InputText = ({ type,placeholder, value, onChange }: {
   onChange: (value: string) => void;
 }) => {
   return <input
-      className="
-        font-mono
-        text-2xl
-        pt-3 pb-3 pl-4 pr-4
-        border-2
-        border-gray-500
-        rounded
-        w-full
-      "
+      className=" font-mono text-2xl pt-3 pb-3 pl-4 pr-4 border-2 border-gray-500 rounded w-full"
       type={type}
       placeholder={placeholder}
       value={value}

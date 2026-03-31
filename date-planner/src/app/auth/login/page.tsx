@@ -3,23 +3,19 @@
 import { Button } from "@/components/Button";
 import { InputText } from "@/components/InputText";
 import { Label } from "@/components/Label";
+import { AuthStatus, useAuth } from "@/hooks/useAuth";
+import { redirect } from "next/navigation";
 import { useState } from "react"
 
+// Login component that renders a login form and handles user authentication
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const { login, status } = useAuth();
 
-  async function login() {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (res.ok) {
-      window.location.href = "/me"; // Redirect to profile after succesful login
-    } else {
-      alert("Invalid credentials");
-    }
+  // If the user is already authenticated, redirect them to the /me page
+  if (status === AuthStatus.Authenticated) {
+    redirect("/me");
   }
 
   return <div className="
@@ -48,6 +44,6 @@ export default function Login() {
         onChange={setPassword}
       />
     </div>
-    <Button onClick={login}>Login</Button>
+    <Button onClick={() => login(email, password)}>Login</Button>
   </div>
 }

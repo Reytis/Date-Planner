@@ -3,14 +3,23 @@
 import { Button } from "@/components/Button";
 import { InputText } from "@/components/InputText";
 import { Label } from "@/components/Label";
+import { AuthStatus, useAuth } from "@/hooks/useAuth";
+import { redirect } from "next/navigation";
 import { useState } from "react"
 
+// Register page component that allows users to create a new account by providing their email and password.
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { status } = useAuth();
 
+  // If the user is already authenticated, redirect them to the /me page
+  if (status === AuthStatus.Authenticated) {
+    redirect("/me");
+  }
+  
   async function submit() {
-    await fetch("/api/register", {
+    await fetch("/api/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
