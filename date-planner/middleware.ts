@@ -15,8 +15,8 @@ export function middleware(req: NextRequest) {
   }
 
   if (token) {
-    const user = verifyToken(token);
-
+    const user = verifyToken(token);// Verify the token to retrieve the user information.
+    
     if (!user && !isPublic) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }

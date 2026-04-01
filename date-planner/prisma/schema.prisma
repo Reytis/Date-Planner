@@ -36,5 +36,5 @@ model Stop {
   startTime   DateTime
 
   tripId      String
-  trip        Trip @relation(fields: [tripId], references: [id])
+  trip        Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
 }

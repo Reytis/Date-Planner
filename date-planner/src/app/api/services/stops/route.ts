@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { addStop } from "@/services/stop.service";
 
+// Create a new stop
 export async function POST(req: Request) {
   try {
     const body = await req.json();
