@@ -7,34 +7,132 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
+enum Role {
+  USER 
+  ADMIN
+}
+
 model User {
-  id          String @id @default(cuid())
-  email       String @unique
-  password    String
-  trips       Trip[]
-  createdAt   DateTime @default(now())
+  id                          String                    @id @default(cuid())
+  email                       String                    @unique
+  name                        String
+  password                    String
+  image                       String? // img URL
+
+  role                        Role                      @default(USER)
+  stripeCustomerId            String?                   @unique
+  Subscription                Subscription?
+
+  trips                       Trip[]
+  comments                    Comment[]
+  ratings                     Rating[]
+  favorites                   Favorite[]
+
+  createdAt                   DateTime                  @default(now())
+  updatedAt                   DateTime                  @updatedAt
+}
+
+enum SubscriptionStatus {
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+model Subscription {
+  id                          String                    @id @default(uuid())
+
+  userId                      String                    @unique
+  user                        User                      @relation(fields: [userId], references: [id])
+
+  stripeSubscriptionId        String                    @unique
+  stripePriceId               String
+  stripeCustomerId            String
+
+  status                      SubscriptionStatus
+
+  currentPeriodEnd            DateTime
+
+  createdAt                   DateTime                  @default(now())
+  updatedAt                   DateTime                  @updatedAt
 }
 
 model Trip {
-  id          String @id @default(cuid())
-  title       String
-  stops       Stop[]
-  createdAt   DateTime @default(now())
+  id                          String                    @id @default(cuid())
+  title                       String
+  startDate                   DateTime
+  cover                       String? // cover URL
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id])
+  isPublic                    Boolean                   @default(true)
+
+  stops                       Stop[]
+  createdAt                   DateTime                  @default(now())
+
+  userId                      String
+  user                        User                      @relation(fields: [userId], references: [id])
+
+  comments                    Comment[]
+  ratings                     Rating[]
+  favoritedBy                 Favorite[]
 }
 
 model Stop {
-  id          String @id @default(cuid())
-  name        String
-  adress      String
-  lat         Float
-  lng         Float
-  price       Float
-  duration    Int
-  startTime   DateTime
+  id                          String                    @id @default(cuid())
+  name                        String
+  adress                      String
+  postalCode                  String
+  city                        String
+  country                     String
+  price                       Decimal
+  duration                    Int
+  startTime                   DateTime
+  ticket                      String? //ticket URL
 
-  tripId      String
-  trip        Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId                      String
+  trip                        Trip                       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id                          String                    @id @default(cuid())
+  content                     String
+
+  userId                      String
+  user                        User                      @relation(fields: [userId], references: [id])
+
+  tripId                      String
+  trip                        Trip                      @relation(fields: [tripId], references: [id])
+
+  createdAt                   DateTime                  @default(now())
+}
+
+model Rating {
+  id                          String                    @id @default(cuid())
+  value                       Int // 1 to 5 max
+
+  userId                      String
+  user                        User                      @relation(fields: [userId], references: [id])
+
+  tripId                      String
+  trip                        Trip                      @relation(fields: [tripId], references: [id])
+
+  createdAt                   DateTime                  @default(now())
+
+  @@unique([userId, tripId]) // one rating per user per trip
+}
+
+model Favorite {
+  id                          String                    @id @default(cuid())
+
+  userId                      String
+  user                        User                      @relation(fields: [userId], references: [id])
+
+  tripId                      String
+  trip                        Trip                      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  createdAt                   DateTime                  @default(now())
+
+  @@unique([userId, tripId]) // one per user per trip
 }

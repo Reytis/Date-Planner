@@ -7,6 +7,7 @@ export async function POST(req: Request) {
   const authSchema = z.object({
     email: z.email(),// Validate that the email is in a valid format
     password: z.string().min(8),// Validate that the password is at least 8 characters long
+    name: z.string().min(2),// Validate that the name is at least 2 characters long
   });
 
   const body = await req.json();
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return new Response(JSON.stringify({error: "Invalid input"}), {status: 400});
   }
-  const {email, password} = parsed.data;
+  const {email, password, name} = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } }); // Check if a user with the provided email already exists in the database
 
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
   const user = await prisma.user.create({
     data: {
       email,
+      name,
       password: hashedPassword,
     },
   });

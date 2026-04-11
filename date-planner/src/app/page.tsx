@@ -11,7 +11,7 @@ export default function Home() {
   // On component mount, call the authenticate function to check if the user is authenticated and update the authentication status accordingly
   useEffect(() => {
     authenticate();
-  }, [])
+  }, [authenticate])
 
   // If the authentication status is unknown show a loading state
   if (status === AuthStatus.Unknown) {

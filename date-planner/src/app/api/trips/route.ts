@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getTrips, createTrip } from "@/services/trip.service.js";
+import { getTrips, createTrip } from "@/services/trip.service";
 
 // Fetch all trips for a user
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const userId = url.searchParams.get("userId"); // Identify the user ID from the request body or authentication context
+    const userId = url.searchParams.get("userId"); // Identify the user ID from the url query parameters
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }
@@ -21,13 +21,28 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    console.log("CREATE TRIP PAYLOAD", JSON.stringify(body));
+
+    if (!body.data) {
+      return NextResponse.json(
+        { error: "Invalid request payload", details: "data is required" },
+        { status: 400 }
+      );
+    }
 
     const trip = await createTrip({
-      title: body.title,
-      userId: body.userId, // Identify the user ID from the request body or authentication context
+      userId: body.userId,
+      trip: body.data
     });
     return NextResponse.json(trip);
   } catch (err) {
-    return NextResponse.json({ error: "Failed to create trip" }, { status: 500 });
+    console.error("CREATE TRIP ERROR", err);
+    return NextResponse.json(
+      {
+        error: "Failed to create trip",
+        details: err instanceof Error ? err.message : String(err),
+      },
+      { status: 500 }
+    );
   }
 };

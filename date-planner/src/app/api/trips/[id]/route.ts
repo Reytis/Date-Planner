@@ -1,10 +1,12 @@
 import { deleteTrip, updateTrip, getTrip } from "@/services/trip.service";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const body = await req.json();
-    const tripId = body.tripId; // Identify the trip ID from the request body or authentication context
+    const { id: tripId } = await context.params; // Identify the trip ID from URL path parameters
+    if (!tripId) {
+      return NextResponse.json({ error: "Trip ID is required" }, { status: 400 });
+    }
     const trip = await getTrip(tripId);
     if (!trip) {
       return NextResponse.json({ error: "Trip not found" }, { status: 404 });
@@ -15,10 +17,12 @@ export async function GET(req: Request) {
   }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const body = await req.json();
-    const tripId = body.tripId; // Identify the trip ID from the request body or authentication context
+    const { id: tripId } = await context.params; // Identify the trip ID from URL path parameters
+    if (!tripId) {
+      return NextResponse.json({ error: "Trip ID is required" }, { status: 400 });
+    }
 
     // Call the deleteTrip function from the trip service
     const deletedTrip = await deleteTrip(tripId);
@@ -31,10 +35,10 @@ export async function DELETE(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(req: Request , context: { params: Promise<{ id: string }> }) {
   try {
     const body = await req.json();
-    const tripId = body.tripId; // Identify the trip ID from the request body or authentication context
+    const { id: tripId } = await context.params; // Identify the trip ID from URL path parameters
     const updateData = body.updateData; // Identify the update data from the request body
 
     // Call the updateTrip function from the trip service

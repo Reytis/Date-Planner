@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/Button";
-import { InputText } from "@/components/InputText";
+import { StringInput, StringType } from "@/components/Inputs";
 import { Label } from "@/components/Label";
 import { AuthStatus, useAuth } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
@@ -18,32 +18,28 @@ export default function Login() {
     redirect("/me");
   }
 
-  return <div className="
-    flex
-    flex-col
-    gap-8
-    w-md
-    m-6
-    ">
+  return <div className="flex flex-col gap-8 w-md m-6">
     <h1 className="text-8xl font-bold font-mono">Login</h1>
     <div>
       <Label>Email</Label>
-      <InputText 
-        type="email"
+      <StringInput
+        type={StringType.Email}
         placeholder="Email"
         value={email}
-        onChange={setEmail}
+        onChange={(v) => typeof v === "string" ? setEmail(v) : null}
       />
     </div>
     <div>
       <Label>Password</Label>
-      <InputText 
-        type="password"
+      <StringInput
+        type={StringType.Password}
         placeholder="Password"
         value={password}
-        onChange={setPassword}
+        onChange={(v) => typeof v === "string" ? setPassword(v) : null}
       />
     </div>
-    <Button onClick={() => login(email, password)}>Login</Button>
+    <div>
+      <Button onClick={() => login(email, password)}>Login</Button>
+    </div>
   </div>
 }

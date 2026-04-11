@@ -32,7 +32,7 @@ export function useAuth() {
     } else {
       setAccount(null);// If the user is not authenticated, set the account state to null
     }
-  }, []);
+  }, [setAccount]);
 
   // Function to log in the user by calling the /api/auth/login endpoint with the provided email and password, and updating the account state with the user data returned from the API
   const login = useCallback( async(email: string, password: string) => {
@@ -42,14 +42,14 @@ export function useAuth() {
     })
     .then((res) => res.json()) // Parse the response as JSON
     .then((json) => setAccount(json.user || null)); // Update the account according to the response, if the login is successful, the user data will be returned and set in the account state, otherwise it will be set to null
-  }, [])
+  }, [setAccount])
 
   // Function to log out the user by calling the /api/auth/logout endpoint and setting the account state to null
   const logout = useCallback(() => {
     const res = fetch("/api/auth/logout", { 
       method: "POST" 
     }).then(() => setAccount(null));// After logging out, set the account state to null to reflect that the user is no longer authenticated
-  }, [])
+  }, [setAccount])
 
   return {
     account,
