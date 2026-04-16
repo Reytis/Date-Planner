@@ -1,5 +1,6 @@
 "use client";
 
+// Card component
 export const Card = ({ 
   children,
   tipId,

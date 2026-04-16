@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getUserById } from "@/services/user.service";
 
+// API route to get user details by ID
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const userId = url.searchParams.get("userId");
+    const userId = url.searchParams.get("userId"); // The user ID is passed as a query parameter
+    
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }

@@ -2,6 +2,7 @@ import { StopForm } from "@/types/tripform"
 import { Button } from "./Button"
 import { dateToMinutes, minutesToTimeString } from "@/functions/dateToInt";
 
+// display Stop components
 export const Stop = ({ stop, onDelete }: { stop: StopForm; onDelete: () => void }) => {
   return <div>
     <h4>{stop.Title}</h4>

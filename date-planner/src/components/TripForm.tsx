@@ -1,24 +1,27 @@
 import { useState } from "react";
 import { Button } from "./Button"
-import { CheckboxInput, DateTimeInput, FileInput, StringInput, StringType, TimeInput } from "./Inputs"
-import { Label, LabelSize } from "./Label"
+import { CheckboxInput, DateTimeInput, FileInput, StringInput, StringType } from "./Inputs"
+import { Label } from "./Label"
 import { StopForm, TripFormType, TripPayload } from "@/types/tripform";
 import { Stop } from "./Stop";
 import { useAuth } from "@/hooks/useAuth";
 import { dateToMinutes } from "@/functions/dateToInt";
+import { StopFormComponent } from "./StopForm";
+import { uploadFile } from "@/functions/upload";
 
 export const TripForm = () => {
-  const { account } = useAuth();
+  const { account } = useAuth(); // get account if user is connected
 
-  const [trip, setTrip] = useState<TripFormType>({
+  const [trip, setTrip] = useState<TripFormType>({ // current trip the user is creating
     Title: "",
     StartTime: new Date(),
     Stops: [],
     isPublic: true,
-    coverImage: null
+    coverImage: null,
+    coverPublicId: null,
   });
 
-  const [stop, setStop] = useState({
+  const [stop, setStop] = useState({ // current stop the user is creating
     Title: "",
     Address: {
       Street: "",
@@ -29,11 +32,15 @@ export const TripForm = () => {
     Price: 0,
     Duration: null,
     Ticket: null,
+    TicketPublicId: null,
     startTime: new Date(),
   } as StopForm);
 
+  // add the stop to the trip 
   const addStop = () => {
     setTrip({...trip, Stops: [...trip.Stops, stop]});
+
+    // reset after adding stop to trip
     setStop({
       Title: "",
       Address: {
@@ -45,32 +52,17 @@ export const TripForm = () => {
       Price: 0,
       Duration: null,
       Ticket: null,
+      TicketPublicId: null,
       startTime: new Date(),
     } as StopForm);
   }
 
+  // remove a stop 
   const removeStop = (index: number) => {
     setTrip({...trip, Stops: trip.Stops.filter((_, i) => i !== index)});
   }
 
-  const uploadFile = async (file: File | null): Promise<string | null> => {
-    if (!file) return null;
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    const json = await response.json();
-    if (!response.ok) {
-      throw new Error(json.error || "Upload failed");
-    }
-
-    return json.url;
-  };
-
+  // create the trip and add it to db
   const createTrip = async () => {
     if (!account) {
       alert("You must be logged in to create a trip");
@@ -78,29 +70,35 @@ export const TripForm = () => {
     }
 
     try {
-      const coverUrl = await uploadFile(trip.coverImage);
+      const cover = await uploadFile(trip.coverImage); // upload the cover and return {url, id}
+
+      //process all stops in the trip
       const stops = await Promise.all(
         trip.Stops.map(async (stop) => {
-          const ticketUrl = await uploadFile(stop.Ticket);
+          const ticket = await uploadFile(stop.Ticket); // upload the ticket and return {url, id}
           return {
             Title: stop.Title,
             Address: stop.Address,
             Price: stop.Price,
             DurationMinutes: dateToMinutes(stop.Duration),
-            TicketUrl: ticketUrl,
+            TicketUrl: ticket?.url,
+            TicketPublicId: ticket?.publicId,
             startTime: stop.startTime ? stop.startTime.toISOString() : null,
           };
         })
       );
 
+      // formated object to send to API to create type
       const payload: TripPayload = {
         Title: trip.Title,
         StartTime: trip.StartTime ? trip.StartTime.toISOString() : null,
-        isPublic: trip.isPublic,
-        coverUrl: coverUrl,
         Stops: stops,
+        isPublic: trip.isPublic,
+        coverUrl: cover ? cover.url : null,
+        coverPublicId: cover ? cover.publicId : null,
       };
 
+      // fetch POST to add trip to DB
       await fetch("/api/trips", {
         method: "POST",
         headers: {
@@ -112,12 +110,14 @@ export const TripForm = () => {
         }),
       });
 
+      // reset after succes
       setTrip({
         Title: "",
         StartTime: new Date(),
         Stops: [],
         isPublic: true,
         coverImage: null,
+        coverPublicId: null,
       });
       console.log("Trip created successfully");
     } catch (error) {
@@ -161,107 +161,11 @@ export const TripForm = () => {
           onChange={(v) => setTrip({...trip, isPublic: !v})}
         />
       </div>
-      <div>
-        <Label> Add Stop</Label>
-        <div>
-          <div>
-            <Label size={LabelSize.s} >Name</Label>
-            <StringInput
-              placeholder="Name"
-              value={stop.Title}
-              onChange={(v) => setStop({ ...stop, Title: v })}
-              type={StringType.Text}
-            />
-          </div>
-          <div>
-            <Label size={LabelSize.s} >Start Time</Label>
-            <DateTimeInput
-              placeholder="Start Time"
-              value={stop.startTime}
-              onChange={(v) => setStop({ ...stop, startTime: v })}
-            />
-          </div>
-          <div>
-            <Label size={LabelSize.s} >Adresse</Label>
-            <div>
-              <div>
-                <Label size={LabelSize.xs}>N*, Street</Label>
-                <StringInput
-                  placeholder="N*, Street"
-                  value={stop.Address.Street}
-                  onChange={(v) => { setStop({...stop, Address: {...stop.Address, Street: v}})}}
-                  type={StringType.Text}
-                />
-              </div>
-              <div className="flex gap-4">
-                <div>
-                  <Label size={LabelSize.xs}>City</Label>
-                  <StringInput
-                    placeholder="City"
-                    value={stop.Address.City}
-                    onChange={(v) => { setStop({...stop, Address: {...stop.Address, City: v}})}}
-                    type={StringType.Text}
-                  />
-                </div>
-                <div>
-                  <Label size={LabelSize.xs}>Postal Code</Label>
-                  <StringInput
-                    placeholder="Postal Code"
-                    value={stop.Address.PostalCode}
-                    onChange={(v) => { setStop({...stop, Address: {...stop.Address, PostalCode: v}})}}
-                    type={StringType.Text}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label size={LabelSize.xs}>Country</Label>
-                <StringInput
-                  placeholder="Country"
-                  value={stop.Address.Country}
-                  onChange={(v) => { setStop({...stop, Address: {...stop.Address, Country: v}})}}
-                  type={StringType.Text}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <div>
-              <Label size={LabelSize.s}>Price</Label>
-              <StringInput
-                placeholder="Price"
-                value={stop.Price.toString()}
-                onChange={(v) => {
-                  const price = parseFloat(v);
-                  if (!isNaN(price)) {
-                    setStop({...stop, Price: price});
-                  }
-                }}
-                type={StringType.Text}
-              />
-            </div>
-            <div>
-              <Label size={LabelSize.s}>Duration</Label>
-              <TimeInput
-                placeholder="Duration"
-                value={stop.Duration}
-                onChange={(v) => setStop({...stop, Duration: v})}
-              />
-            </div>
-          </div>
-          <div>
-            <Label size={LabelSize.s}>Ticket</Label>
-            <FileInput
-              placeholder="Ticket"
-              value={stop.Ticket}
-              onChange={(v) => setStop({ ...stop, Ticket: v })} 
-              acceptedTypes={["image/jpeg","image/png"]} 
-            />
-          </div>
-          <Button onClick={addStop}>Add Stop</Button>
-        </div>
-      </div>
+      {/* separated form to add stop assure DRY */}
+      <StopFormComponent addStop={addStop} stop={stop} setStop={setStop} />
     </div>
     <div>
+      {/* LIST the current added stop */}
       <h3 className="text-2xl">Stops</h3>
       {trip.Stops.map((stop, index) => <Stop key={index} stop={stop} onDelete={() => removeStop(index)} />)}
     </div>

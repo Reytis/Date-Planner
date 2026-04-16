@@ -1,12 +1,22 @@
 "use client";
 
-const formatDateValue = (value: Date, type: "date" | "datetime-local" | "time") => {
+import { isoStringToDate } from "@/functions/dateToInt";
+
+// Formate Date value to prevent invalid data issue
+const formatDateValue = (value: Date | string, type: "date" | "datetime-local" | "time") => {
+  if (!value) return "" //return if no value
+
+  const date = value instanceof Date ? value : isoStringToDate(value) // if value is string date convert into date
+
+  if (isNaN(date!.getTime())) return ""; // return if string value is not date
+
+  // get all part of a Date
   const pad = (n: number) => n.toString().padStart(2, "0");
-  const year = value.getFullYear();
-  const month = pad(value.getMonth() + 1);
-  const day = pad(value.getDate());
-  const hours = pad(value.getHours());
-  const minutes = pad(value.getMinutes());
+  const year = date!.getFullYear();
+  const month = pad(date!.getMonth() + 1);
+  const day = pad(date!.getDate());
+  const hours = pad(date!.getHours());
+  const minutes = pad(date!.getMinutes());
 
   if (type === "datetime-local") {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
@@ -28,6 +38,7 @@ export enum StringType {
   Password = "password",
 }
 
+// text Inputs (password, mail, name)
 export const StringInput = ({
   placeholder,
   value,
@@ -52,6 +63,7 @@ export const StringInput = ({
   );
 };
 
+// number Input (price)
 export const NumberInput = ({
   placeholder,
   value,
@@ -74,6 +86,7 @@ export const NumberInput = ({
   );
 };
 
+// file input (cover, tickets)
 export const FileInput = ({
   placeholder,
   value,
@@ -98,6 +111,7 @@ export const FileInput = ({
   );
 };
 
+// time input (durations)
 export const TimeInput = ({
   placeholder,
   value,
@@ -136,6 +150,7 @@ export const TimeInput = ({
   );
 };
 
+// date inut (startTime)
 export const DateTimeInput = ({
   placeholder,
   value,
@@ -158,6 +173,7 @@ export const DateTimeInput = ({
   );
 };
 
+// checkbox input (is public)
 export const CheckboxInput = ({
   checked,
   onChange,

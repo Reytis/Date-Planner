@@ -1,5 +1,6 @@
 "use client";
 
+// Button Component
 export const Button = ({ onClick, children }: {
   onClick: () => void;
   children: React.ReactNode;

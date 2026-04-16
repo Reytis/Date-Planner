@@ -1,4 +1,5 @@
 import { deleteTrip, updateTrip, getTrip } from "@/services/trip.service";
+import { TripUpdateDTO } from "@/types/tripform";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
@@ -35,19 +36,17 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
   }
 }
 
-export async function PATCH(req: Request , context: { params: Promise<{ id: string }> }) {
+// Update a specific Trip to change his data
+export async function PATCH(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const body = await req.json();
-    const { id: tripId } = await context.params; // Identify the trip ID from URL path parameters
-    const updateData = body.updateData; // Identify the update data from the request body
+    const body: TripUpdateDTO = await req.json();
+    const { id: tripId } = await context.params;
 
-    // Call the updateTrip function from the trip service
-    const updatedTrip = await updateTrip(tripId, updateData);
-    if (!updatedTrip) {
-      return NextResponse.json({ error: "Trip not found" }, { status: 404 });
-    }
+    const updatedTrip = await updateTrip(tripId, body);
+
     return NextResponse.json(updatedTrip);
   } catch (err) {
+    console.error(err);
     return NextResponse.json({ error: "Failed to update trip" }, { status: 500 });
   }
 }

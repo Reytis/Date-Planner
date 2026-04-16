@@ -1,5 +1,6 @@
 "use client";
 
+// List item component
 export const ListItem = ({ 
   children,
   tripId,

@@ -1,3 +1,4 @@
+// Utility functions for converting between Date objects and integer representations of time (in minutes).
 export const timeStringToMinutes = (time: string): number => {
   const [hours, minutes] = time.split(":");
   const parsedHours = parseInt(hours, 10);
@@ -10,6 +11,7 @@ export const timeStringToMinutes = (time: string): number => {
   return parsedHours * 60 + parsedMinutes;
 };
 
+// Converts total minutes to a time string in HH:MM format.
 export const minutesToTimeString = (totalMinutes: number): string => {
   if (Number.isNaN(totalMinutes) || totalMinutes < 0) {
     throw new Error(`Invalid minutes value: ${totalMinutes}. Expected a non-negative number.`);
@@ -22,11 +24,13 @@ export const minutesToTimeString = (totalMinutes: number): string => {
   return `${pad(hours)}:${pad(minutes)}`;
 };
 
+// Converts a Date object to total minutes since midnight. If the date is null, returns 0.
 export const dateToMinutes = (date: Date | null): number => {
   if (!date) return 0;
   return date.getHours() * 60 + date.getMinutes();
 };
 
+// Converts total minutes to a Date object on the same day as the baseDate (defaulting to the current date).
 export const minutesToDate = (totalMinutes: number, baseDate = new Date()): Date => {
   const result = new Date(baseDate);
   result.setHours(Math.floor(totalMinutes / 60));
@@ -34,4 +38,17 @@ export const minutesToDate = (totalMinutes: number, baseDate = new Date()): Date
   result.setSeconds(0);
   result.setMilliseconds(0);
   return result;
+};
+
+// Convert IOS string to a Date Object
+export const isoStringToDate = (value: string | null | undefined): Date | null => {
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid ISO date string: ${value}`);
+  }
+
+  return date;
 };

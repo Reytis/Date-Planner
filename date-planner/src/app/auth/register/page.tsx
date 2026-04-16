@@ -25,6 +25,7 @@ export default function Register() {
       method: "POST",
       body: JSON.stringify({ email, password, name }),
     });
+    redirect("/auth/login");
     } catch (err) {
       console.error("Registration error", err);
     }

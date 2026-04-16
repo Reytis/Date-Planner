@@ -2,6 +2,7 @@
 
 import { TripForm } from "@/components/TripForm";
 
+// This page just handle the display of the trip form in its container
 export const CreateTrip = () => {
 
   return <div className="min-h-screen">

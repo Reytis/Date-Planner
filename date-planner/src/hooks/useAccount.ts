@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "./useAuth";
+import { AuthStatus, useAuth } from "./useAuth";
 
 export function useAccount() {
-  const { account } = useAuth();
+  const { account, status } = useAuth();
   const [trips, setTrips] = useState([]);
-
-  if (!account) {
-    throw new Error("useAccount must be used within an AuthProvider and when the user is authenticated");
-  }
   
   useEffect(() => {
+    if (!account) return; 
+
     const fetchTrips = async () => {
       try {
         const res = await fetch(`/api/trips?userId=${account.id}`); // Fetch the user's trips using the getTrips function, passing in the user's ID
@@ -26,6 +24,7 @@ export function useAccount() {
 
   return {
     account,
-    trips
+    trips,
+    isLoading: status === AuthStatus.Unknown
   };
 }
