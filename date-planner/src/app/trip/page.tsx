@@ -8,8 +8,9 @@ import { StopForm } from '@/types/tripform';
 import { useAccount } from '@/hooks/useAccount';
 import { deleteFile, uploadFile } from '@/functions/upload';
 import { EditTrip } from './editTrip';
-import { TripView } from './trip';
-import { error } from 'console';
+import { ViewTrip } from './trip';
+import { CreateTrip } from './createTrip';
+import { getUsername } from '@/functions/users';
 
 export default function Trip() {
   const { account } = useAccount(); // Get account if checking if user is connected
@@ -23,19 +24,6 @@ export default function Trip() {
 
   const [mode, setMode] = useState<"view" | "edit">("view"); // State to manage whether the trip is in view mode or edit mode
   const [newCover, setNewCover] = useState<File | null>(null); // State to hold a new cover image file when editing the trip
-
-  // Function to fetch the username based on the user ID
-  const getUsername = async (userId: string) => {
-    const response = await fetch(`/api/user?userId=${userId}`);
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user details');
-    }
-
-    const userData = await response.json();
-
-    return userData.name;
-  }
 
   // Function to fetch trip details based on the trip ID
   const fetchTripDetails = async (id: string) => {
@@ -64,7 +52,7 @@ export default function Trip() {
   }, [tripId]);
 
   if (!tripId) {
-    return <div>No trip ID provided</div>;
+    return <CreateTrip />; // If no trip ID is provided in the URL, render the CreateTrip component to allow the user to create a new trip
   }
 
   if (!trip) {
@@ -189,27 +177,11 @@ export default function Trip() {
   }
 
   return <div>
-    {/* // If the mode is "edit", render the edit form for the trip details and stops */}
-    {isOwner && mode === "edit" && 
-    <EditTrip 
-      setMode={setMode} 
-      handleDeleteTrip={handleDeleteTrip} 
+    <ViewTrip 
       trip={trip} 
-      setTrip={setTrip} 
-      setNewCover={setNewCover} 
-      handleSaveStop={handleSaveStop} 
-      handleDeleteStop={handleDeleteStop} 
-      handleSaveTrip={handleSaveTrip} 
-      newCover={newCover} 
-    />}
-    {/* // If the mode is "view", render the trip details and stops in a read-only format */}
-    {(isOwner || trip.isPublic) && mode === "view" &&
-    <TripView 
-      trip={trip} 
-      username={username}
-      handleDeleteTrip={handleDeleteTrip}
-      setMode={setMode}
+      author={username}
+      setMode={() => setMode}
       isOwner={isOwner}
-    />}
+    />
   </div>
 }

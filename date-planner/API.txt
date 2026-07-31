@@ -1,0 +1,21 @@
+auth
+	login
+	logout
+	me
+	register
+stops
+	ID
+trips
+	ID
+		rating
+		comment
+		favoritedby
+upload
+user
+	ID
+		card
+		followers
+		following
+		trips
+		comments
+		favorites

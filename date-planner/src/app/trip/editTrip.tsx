@@ -1,8 +1,3 @@
-import { Button } from "@/components/Button"
-import { StringInput, StringType, FileInput, DateTimeInput, CheckboxInput } from "@/components/Inputs"
-import { Label, LabelSize } from "@/components/Label";
-import { StopFormComponent } from "@/components/StopForm"
-import { isoStringToDate } from "@/functions/dateToInt";
 import { TripType } from "@/types/trip";
 
 export const EditTrip = ({
@@ -28,7 +23,7 @@ export const EditTrip = ({
 }) => {
 
   return <div>
-    <Button onClick={() => setMode("view")}>Back to View Trip</Button>
+    {/* <Button onClick={() => setMode("view")}>Back to View Trip</Button>
     <Button onClick={handleDeleteTrip}>Delete Trip</Button>
     <StringInput value={trip.title} onChange={(v) => setTrip({ ...trip, title: v })} type={StringType.Text} />
     {trip.cover && <img src={trip.cover} alt="cover of the trip" />}
@@ -43,6 +38,6 @@ export const EditTrip = ({
       <CheckboxInput checked={!trip.isPublic} onChange={(v) => setTrip({ ...trip, isPublic: !v })} />
     </div>
     <StopFormComponent addStop={handleSaveStop} />
-    <Button onClick={() => handleSaveTrip({ newCover, trip })}>Save Trip</Button>
+    <Button onClick={() => handleSaveTrip({ newCover, trip })}>Save Trip</Button> */}
   </div>
 }

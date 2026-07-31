@@ -23,3 +23,11 @@ export type StopType = {
   ticketPublicId: string | null; // Public ID of the ticket file in the storage service, used for deletion
   tripId: string;
 }
+
+export type TripData = {
+  comments: [];
+  commentCount: number;
+  favoritesCount: number;
+  ratingsCount: number,
+  averageRating: number;
+}

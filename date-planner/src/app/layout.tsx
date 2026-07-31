@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthInitializer } from "@/context/AuthInitializer";
+import { Sora } from "next/font/google";
+import { ThemeProvider } from "@/context/ThemeContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// personnal Font for the project
+const sora = Sora({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: "--font-sora"
+})
 
 export const metadata: Metadata = {
-  title: "Date planner",
+  title: "Viati",
   description: "plan you dates, event or vacations with your loved ones",
-  
 };
 
 export default function RootLayout({
@@ -26,15 +22,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        {/*Wrap the application with the AuthProvider to provide authentication context to all components */}
-        <AuthProvider>
-          <AuthInitializer>{children}</AuthInitializer>
-        </AuthProvider>
+    <html lang="en" className={sora.variable} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        {/*Wrap the application in the Theme provider to switch properly from Dark Mode to Light Mode */}
+        <ThemeProvider>
+          {/*Wrap the application with the AuthProvider to provide authentication context to all components */}
+          <AuthProvider>
+            <AuthInitializer>{children}</AuthInitializer>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

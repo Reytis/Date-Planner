@@ -52,3 +52,17 @@ export const isoStringToDate = (value: string | null | undefined): Date | null =
 
   return date;
 };
+
+// Helper function to parse duration from number or string to minutes
+export const parseDurationMinutes = (duration: number | string | null): number => {
+  if (typeof duration === "number") {
+    return duration;
+  }
+
+  if (typeof duration === "string") {
+    const parsed = new Date(duration);
+    return dateToMinutes(parsed);
+  }
+
+  return 0;
+};

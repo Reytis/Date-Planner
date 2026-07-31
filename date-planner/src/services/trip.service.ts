@@ -1,5 +1,5 @@
+import { parseDurationMinutes } from "@/functions/dateToInt";
 import { prisma } from "@/lib/db";
-import { dateToMinutes } from "@/functions/dateToInt";
 import { TripPayload, TripUpdateDTO } from "@/types/tripform";
 
 // Fetch all trips for a user
@@ -8,20 +8,6 @@ export const getTrips = async (userId: string) => {
     where: { userId },
     include: { stops: true },
   });
-};
-
-// Helper function to parse duration from number or string to minutes
-const parseDurationMinutes = (duration: number | string | null): number => {
-  if (typeof duration === "number") {
-    return duration;
-  }
-
-  if (typeof duration === "string") {
-    const parsed = new Date(duration);
-    return dateToMinutes(parsed);
-  }
-
-  return 0;
 };
 
 // Create a new trip for a user
@@ -56,7 +42,7 @@ export const  createTrip = async (data: {
   });
 };
 
-// Update a trip by ID
+// Delete a trip by ID
 export const deleteTrip = async (id: string) => {
   return prisma.trip.delete({
     where: { id },
@@ -146,3 +132,47 @@ export const getTrip = async (id: string) => {
     include: { stops: true },
   });
 }
+
+// Fetch trip stat by ID (rating, saved, comments)
+export const getTripData = async (tripId: string) => {
+  const trip = await prisma.trip.findUnique({
+    where: {
+      id: tripId,
+    },
+    select: {
+      comments: true,
+
+      _count: {
+        select: {
+          comments: true,
+          ratings: true,
+          favoritedBy: true,
+        },
+      },
+
+      ratings: {
+        select: {
+          value: true,
+        },
+      },
+    },
+  });
+
+  if (!trip) return null;
+
+  const averageRating =
+    trip.ratings.length > 0
+      ? trip.ratings.reduce((sum, rating) => sum + rating.value, 0) /
+        trip.ratings.length
+      : 0;
+
+  return {
+    comments: trip.comments,
+
+    commentsCount: trip._count.comments,
+    favoritesCount: trip._count.favoritedBy,
+    ratingsCount: trip._count.ratings,
+
+    averageRating,
+  };
+};

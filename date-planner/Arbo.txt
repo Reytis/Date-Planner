@@ -1,0 +1,17 @@
+landing
+auth
+	login
+		login form
+	register
+		register form
+dashboard
+	mon compte
+	settings
+browse
+trip
+	view
+	edit
+	create
+profil
+footer redirect
+ui kit
