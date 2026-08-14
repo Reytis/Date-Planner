@@ -1,5 +1,4 @@
-# ❤️ Date Planner
-
+# ❤️ Viati
 > Plan meaningful dates and unforgettable trips — all in one place.
 
 ---
